@@ -1,5 +1,7 @@
 package pe.goblin.querydsl;
 
+import static pe.goblin.querydsl.entity.QMember.*;
+
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,13 +54,23 @@ public class QuerydslBasicTest {
 	}
 
 	@Test
-	public void startQuerydsl() {
-
+	public void startQuerydsl_1() {
 		QMember m = new QMember("m");
 		Member findMember = queryFactory
 			.select(m)
 			.from(m)
 			.where(m.username.eq("member1"))
+			.fetchOne();
+
+		Assertions.assertThat(findMember.getUsername()).isEqualTo("member1");
+	}
+
+	@Test
+	public void startQuerydsl_2() {
+		Member findMember = queryFactory
+			.select(member)
+			.from(member)
+			.where(member.username.eq("member1"))
 			.fetchOne();
 
 		Assertions.assertThat(findMember.getUsername()).isEqualTo("member1");
