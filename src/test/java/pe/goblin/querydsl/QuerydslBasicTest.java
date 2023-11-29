@@ -19,7 +19,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import pe.goblin.querydsl.entity.Member;
 import pe.goblin.querydsl.entity.QMember;
-import pe.goblin.querydsl.entity.QTeam;
 import pe.goblin.querydsl.entity.Team;
 
 @SpringBootTest
@@ -224,5 +223,44 @@ public class QuerydslBasicTest {
 
 		Assertions.assertThat(teamB.get(team.name)).isEqualTo("teamB");
 		Assertions.assertThat(teamB.get(member.age.avg())).isEqualTo(35); // (30+40)/2
+	}
+
+	@Test
+	public void join() {
+		// List<Member> teamA = queryFactory
+		// 	.selectFrom(member)
+		// 	.join(member.team, team)
+		// 	.where(team.name.eq("teamA"))
+		// 	.fetch();
+
+		List<Member> teamA = queryFactory
+			.selectFrom(member)
+			.leftJoin(member.team, team)
+			.where(team.name.eq("teamA"))
+			.fetch();
+
+		Assertions.assertThat(teamA)
+			.extracting("username")
+			.containsExactly("member1", "member2");
+	}
+
+	/**
+	 * 세타 조인
+	 * 회원의 이름이 팀 이름과 같은 회원 조회
+	 */
+	@Test
+	public void theta_join() {
+		em.persist(new Member("teamA"));
+		em.persist(new Member("teamB"));
+
+		List<Member> result = queryFactory
+			.select(member)
+			.from(member, team)
+			.where(member.username.eq(team.name))
+			.fetch();
+
+		Assertions.assertThat(result)
+			.extracting("username")
+			.containsExactly("teamA", "teamB");
 	}
 }
