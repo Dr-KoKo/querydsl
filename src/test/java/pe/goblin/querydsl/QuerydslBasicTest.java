@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.querydsl.core.BooleanBuilder;
@@ -653,5 +654,50 @@ public class QuerydslBasicTest {
 	// 광고 상태 isValid, 날짜가 IN => isServiceable
 	private BooleanExpression allEq(String usernameParam, Integer ageParam) {
 		return userNameEq(usernameParam).and(ageEq(ageParam));
+	}
+
+	@Test
+	public void bulkUpdate() {
+		// 1/member1/10 -> DB 1/member1
+		// 2/member2/20 -> DB 2/member2
+		// 3/member3/30 -> DB 3/member3
+		// 4/member4/40 -> DB 4/member4
+		long count = queryFactory
+			.update(member)
+			.set(member.username, "비회원")
+			.where(member.age.lt(28))
+			.execute();
+
+		em.flush();
+		em.clear();
+
+		// 1/member1/10 -> DB 1/비회원
+		// 2/member2/20 -> DB 2/비회원
+		// 3/member3/30 -> DB 3/member3
+		// 4/member4/40 -> DB 4/member4
+
+		List<Member> result = queryFactory
+			.selectFrom(member)
+			.fetch();
+
+		for (Member member : result) {
+			System.out.println("member = " + member);
+		}
+	}
+
+	@Test
+	public void bulkAdd() {
+		long count = queryFactory
+			.update(member)
+			.set(member.age, member.age.multiply(1))
+			.execute();
+	}
+
+	@Test
+	public void bulkDelete() {
+		long count = queryFactory
+			.delete(member)
+			.where(member.age.gt(18))
+			.execute();
 	}
 }
