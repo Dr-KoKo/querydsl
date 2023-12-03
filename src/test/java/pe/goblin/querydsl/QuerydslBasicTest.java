@@ -624,4 +624,34 @@ public class QuerydslBasicTest {
 			.where(builder)
 			.fetch();
 	}
+
+	@Test
+	public void dynamicQuery_WhereParam() {
+		String usernameParam = "member1";
+		Integer ageParam = null;
+
+		List<Member> result = searchMemberByCondition_2(usernameParam, ageParam);
+		Assertions.assertThat(result.size()).isEqualTo(1);
+	}
+
+	private List<Member> searchMemberByCondition_2(String usernameParam, Integer ageParam) {
+		return queryFactory
+			.selectFrom(member)
+			// .where(userNameEq(usernameParam), ageEq(ageParam))
+			.where(allEq(usernameParam, ageParam))
+			.fetch();
+	}
+
+	private BooleanExpression userNameEq(String usernameParam) {
+		return usernameParam != null ? member.username.eq(usernameParam) : null;
+	}
+
+	private BooleanExpression ageEq(Integer ageParam) {
+		return ageParam != null ? member.age.eq(ageParam) : null;
+	}
+
+	// 광고 상태 isValid, 날짜가 IN => isServiceable
+	private BooleanExpression allEq(String usernameParam, Integer ageParam) {
+		return userNameEq(usernameParam).and(ageEq(ageParam));
+	}
 }
