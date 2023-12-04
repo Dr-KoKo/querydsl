@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
